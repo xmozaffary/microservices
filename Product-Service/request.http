@@ -1,0 +1,414 @@
+### Create product
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "iphone Pro 2000",
+  "description": "Apple laptop för utvecklare",
+  "price": 29999.99,
+  "currency": "SEK",
+  "categoryId": null,
+  "categoryName": "Electronik",
+  "stockQuantity": 10,
+  "attributes": {
+    "color": "space gray",
+    "ram": "32GB",
+    "storage": "1TB SSD"
+  },
+  "imageUrls": [
+    "https://example.com/images/macbook.jpg"
+  ]
+}
+
+
+
+
+### hämta products
+GET http://localhost:8080/api/products?page=4&size=5&sortBy=id&sortDir=asc
+
+### hämta products all
+GET http://localhost:8081/api/products/all
+
+
+#####################################
+### search
+
+### Get All Products (No Filters)
+GET http://localhost:8080/api/products/search
+
+### Search by Name (Partial Match)
+# Expects: All products with "iPhone" in their name.
+GET http://localhost:8080/api/products/search?name=iPhone
+
+### Search by Category Name
+# Expects: All products belonging to the "Laptops" category.
+GET http://localhost:8080/api/products/search?categoryName=Laptops
+
+### Search by Minimum Price
+# Expects: All products with a price of 10,000 or more.
+GET http://localhost:8080/api/products/search?minPrice=10000
+
+### Search by Maximum Price
+# Expects: All products with a price of 20,000 or less.
+GET http://localhost:8080/api/products/search?maxPrice=20000
+
+### Search by Price Range (Min and Max)
+# Expects: All products with a price between 8,000 and 15,000.
+GET http://localhost:8080/api/products/search?minPrice=8000&maxPrice=15000
+
+### Search by all Filters (Name, Category, and Price Range)
+# Expects: Products named "MacBook Pro" in the "Laptops" category with a price between 10,000 and 25,000.
+GET http://localhost:8080/api/products/search?name=MacBook&categoryName=Laptops&minPrice=10000&maxPrice=25000
+
+### Search with an Invalid Category
+# Expects: An empty list or a 404 Not Found if your database returns a specific error for non-existent categories.
+GET http://localhost:8080/api/products/search?categoryName=NonExistentCategory
+
+### Search with an invalid or non-matching Name
+# Expects: An empty list.
+GET http://localhost:8080/api/products/search?name=ThisProductDoesNotExist
+
+### Security Test: SQL Injection Attempt
+# This is a critical test. It should return an empty list because your
+# JPA Specification implementation handles the input as data, not code.
+GET http://localhost:8080/api/products/search?name=test%27%20OR%201%3D1%20--
+
+#################################################
+### pagination
+
+### 1. Hämta första sidan med standardvärden
+# Förväntat resultat: Sida 0 med 5 produkter, sorterade efter namn i stigande ordning (standardvärden).
+GET http://localhost:8080/api/products
+
+### 2. Hämta första sidan med anpassad sidstorlek
+# Förväntat resultat: Sida 0 med 3 produkter, sorterade efter namn i stigande ordning.
+GET http://localhost:8080/api/products?size=3
+
+### 3. Hämta en specifik sida
+# Förväntat resultat: Sida 1 med 5 produkter, sorterade efter namn i stigande ordning.
+GET http://localhost:8080/api/products?page=1
+
+### 4. Hämta en specifik sida med anpassad sidstorlek
+# Förväntat resultat: Sida 1 med 2 produkter, sorterade efter namn i stigande ordning.
+GET http://localhost:8080/api/products?page=1&size=2
+
+### 5. Sortera i fallande ordning
+# Förväntat resultat: Sida 0 med 5 produkter, sorterade efter pris i fallande ordning.
+GET http://localhost:8080/api/products?sortBy=price&sortDir=desc
+
+### 6. Sortera i stigande ordning
+# Förväntat resultat: Sida 0 med 5 produkter, sorterade efter pris i stigande ordning.
+GET http://localhost:8080/api/products?sortBy=price&sortDir=asc
+
+### 7. Kombinera sida, storlek och sortering
+# Förväntat resultat: Sida 2 med 10 produkter, sorterade efter pris i fallande ordning.
+GET http://localhost.com:8080/api/products?page=2&size=10&sortBy=price&sortDir=desc
+
+### 8. Ogiltig sidnumrering (negativt värde)
+# Förväntat resultat: Sida 0 (automatiskt justerat), 5 produkter.
+GET http://localhost:8080/api/products?page=-1
+
+### 9. Ogiltig sidnumrering (för högt värde)
+# Förväntat resultat: 200 OK med en tom lista.
+GET http://localhost:8080/api/products?page=99999
+
+### 10. Ogiltigt sorteringsfält
+# Förväntat resultat: 500 Internal Server Error (Spring kan inte sortera efter ett fält som inte finns).
+GET http://localhost:8080/api/products?sortBy=nonexistentField
+
+
+
+### Get product by ID (read-only)
+GET http://localhost:8081/api/products/{{productId}}
+
+
+#########################################################
+@host = http://localhost:8081
+
+### Skapa en produkt
+// Skapa en initial produkt.
+POST {{host}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Original Product",
+  "description": "This is the initial product.",
+  "price": 99.99,
+  "currency": "USD",
+  "categoryId": null,
+  "stockQuantity": 50,
+  "active": true,
+  "attributes": {
+    "size": "M",
+    "material": "cotton"
+  },
+  "imageUrls": [
+    "https://example.com/initial-image-1.jpg",
+    "https://example.com/initial-image-2.jpg"
+  ]
+}
+
+
+### Testfall 1: Uppdatera grundläggande fält
+// Uppdaterar namn, pris, beskrivning, och behåller befintliga bilder.
+PUT {{host}}/api/products/cfb4666f-20bd-418b-899e-5130b5eaaa84
+Content-Type: application/json
+
+{
+  "name": "Updated Smartphone Model",
+  "description": "Updated flagship phone with new features.",
+  "price": 1499.00,
+  "currency": "EUR",
+  "categoryId": null,
+  "stockQuantity": 50,
+  "active": true,
+  "attributes": {
+    "size": "M",
+    "material": "cotton"
+  },
+  "imageUrls": [
+    "https://example.com/initial-image-1.jpg",
+    "https://example.com/initial-image-2.jpg"
+  ]
+}
+
+
+### Testfall 2: Uppdatera kategori med namn (skapa ny kategori) och ändra bilder
+// Denna testar om en ny kategori kan skapas och länkas, samtidigt som bilderna byts ut.
+PUT {{host}}/api/products/cfb4666f-20bd-418b-899e-5130b5eaaa84
+Content-Type: application/json
+
+{
+  "name": "Updated Smartphone Model",
+  "description": "Updated flagship phone with new features.",
+  "price": 1499.00,
+  "currency": "EUR",
+  "categoryName": "Smartphones",
+  "stockQuantity": 50,
+  "active": true,
+  "attributes": {
+    "size": "M",
+    "material": "cotton"
+  },
+  "imageUrls": [
+    "https://example.com/new-smartphone-front.jpg",
+    "https://example.com/new-smartphone-back.jpg",
+    "https://example.com/new-smartphone-side.jpg"
+  ]
+}
+
+
+### Testfall 3: Uppdatera attribut, stock quantity och ta bort bilder
+// Denna testar om attributen kan bytas ut, lagersaldot ändras och alla bilder tas bort genom att skicka en tom lista.
+PUT {{host}}/api/products/cfb4666f-20bd-418b-899e-5130b5eaaa84
+Content-Type: application/json
+
+{
+  "name": "Updated Smartphone Model",
+  "description": "Updated flagship phone with new features.",
+  "price": 1499.00,
+  "currency": "EUR",
+  "categoryId": null,
+  "stockQuantity": 45,
+  "active": true,
+  "attributes": {
+    "color": "space black",
+    "storage": "512GB"
+  },
+  "imageUrls": []
+}
+
+
+### Testfall 4: Felhantering - ogiltigt produkt-ID
+// Ska returnera 404 (Not Found) eftersom ID:t inte existerar.
+PUT {{host}}/api/products/00000000-0000-0000-0000-000000000000
+Content-Type: application/json
+
+{
+  "name": "Non-existent product",
+  "description": "Should fail",
+  "price": 100.00,
+  "currency": "USD",
+  "categoryId": null,
+  "stockQuantity": 1,
+  "active": true,
+  "imageUrls": []
+}
+
+
+### Testfall 5: Felhantering - ogiltig categoryId
+// Ska returnera 404 (Not Found) eftersom kategorin inte finns.
+PUT {{host}}/api/products/cfb4666f-20bd-418b-899e-5130b5eaaa84
+Content-Type: application/json
+
+{
+  "name": "Product with invalid category",
+  "description": "Should fail",
+  "price": 100.00,
+  "currency": "USD",
+  "categoryId": "00000000-0000-0000-0000-000000000000",
+  "stockQuantity": 1,
+  "active": true,
+  "imageUrls": [
+    "https://example.com/image.jpg"
+  ]
+}
+
+######################################
+### ------------------------------------------------------------
+### ENV
+### ------------------------------------------------------------
+@baseUrl = http://localhost:8081
+@products = {{baseUrl}}/api/inventory
+@contentType = application/json
+
+# Sätt detta till en existerande produkt
+@productId = 69af3615-825c-4014-87b8-91bfce23c3bd
+
+### ------------------------------------------------------------
+### 1) PURCHASE — OK (normalfall)
+### ------------------------------------------------------------
+# @name purchase_ok
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 2
+}
+
+### ------------------------------------------------------------
+### 2) PURCHASE — OK (gränsvärde: 1 st)
+### ------------------------------------------------------------
+# @name purchase_boundary_one
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 1
+}
+
+### ------------------------------------------------------------
+### 3) PURCHASE — OK (exakt kvarvarande; sätt rätt siffra före körning)
+### ------------------------------------------------------------
+# @name purchase_exact_remaining
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 9
+}
+
+### ------------------------------------------------------------
+### 4) PURCHASE — INSUFFICIENT STOCK (409 Problem Details)
+###    quantity > återstående lager
+### ------------------------------------------------------------
+# @name purchase_insufficient_stock
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 9999
+}
+
+### ------------------------------------------------------------
+### 5) PURCHASE — VALIDATION ERROR (400) quantity = 0
+### ------------------------------------------------------------
+# @name purchase_qty_zero
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 0
+}
+
+### ------------------------------------------------------------
+### 6) PURCHASE — VALIDATION ERROR (400) quantity < 0
+### ------------------------------------------------------------
+# @name purchase_qty_negative
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": -3
+}
+
+### ------------------------------------------------------------
+### 7) PURCHASE — VALIDATION ERROR (400) fel typ (string istället för number)
+### ------------------------------------------------------------
+# @name purchase_qty_wrong_type
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": "tre"
+}
+
+### ------------------------------------------------------------
+### 8) PURCHASE — BAD REQUEST (400) saknar body
+### ------------------------------------------------------------
+# @name purchase_missing_body
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+### ------------------------------------------------------------
+### 9) PURCHASE — BAD REQUEST (400) saknar fältet quantity
+### ------------------------------------------------------------
+# @name purchase_missing_field
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+}
+
+### ------------------------------------------------------------
+### 10) PURCHASE — NOT FOUND (404) ogiltigt produkt-id
+### ------------------------------------------------------------
+# @name purchase_not_found
+POST {{products}}/00000000-0000-0000-0000-000000000000/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 1
+}
+
+### ------------------------------------------------------------
+### 11) PURCHASE — TYPE MISMATCH (400) felaktigt UUID-format i path
+### ------------------------------------------------------------
+# @name purchase_type_mismatch_uuid
+POST {{products}}/not-a-uuid/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 1
+}
+
+### ------------------------------------------------------------
+### 12) PURCHASE — UNSUPPORTED MEDIA TYPE (415)
+###     (skicka fel content-type för att verifiera 415)
+### ------------------------------------------------------------
+# @name purchase_unsupported_media_type
+POST {{products}}/{{productId}}/purchase
+Content-Type: text/plain
+
+{"quantity": 1}
+
+### ------------------------------------------------------------
+### 13) PURCHASE — KONKURRENS (409) *manuellt scenario*
+###     Kör dessa två snabbt efter varandra om lagret inte räcker för båda.
+###     En av dem kan slå i optimistisk låsning eller insufficient stock.
+### ------------------------------------------------------------
+# @name purchase_concurrency_a
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 5
+}
+
+### @name purchase_concurrency_b
+POST {{products}}/{{productId}}/purchase
+Content-Type: {{contentType}}
+
+{
+  "quantity": 5
+}

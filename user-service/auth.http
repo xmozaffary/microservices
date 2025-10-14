@@ -1,0 +1,25 @@
+### register – skapa användare
+POST https://moln.ittt.se/auth/register
+Content-Type: application/json
+
+{
+  "email": "test2@ing.se",
+  "password": "stringst",
+  "firstName": "string",
+  "lastName": "string"
+}
+
+
+
+### Login – hämta JWT
+POST https://moln.ittt.se/auth/login
+Content-Type: application/json
+
+{
+  "email": "test2@ing.se",
+  "password": "stringst"
+}
+
+### Anropa skyddad endpoint /me
+GET https://moln.ittt.se//me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MkBpbmcuc2UiLCJpc3MiOiJ1c2VyLXNlcnZpY2UiLCJpYXQiOjE3NTYyMDUxNzksImV4cCI6MTc1NjIwNjk3OSwidWlkIjoiNTY1ZWU3OGYtNWEzYy00OTllLWJkOTUtNDBjYzAxNWIwODg1Iiwicm9sZSI6IlVTRVIifQ.91harcnQ3znL5rhrfrrjPkz4MPS4Qx-KvFnAi_dIXwk
