@@ -27,10 +27,6 @@ public class OpenApiConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
                                         .description("JWT Bearer authentication")))
-                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-                .servers(List.of(
-                        new Server().url("http://localhost:8082").description("Local"),
-                        new Server().url("https://orderservice.drillbi.se").description("Production")
-                ));
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }
 }
