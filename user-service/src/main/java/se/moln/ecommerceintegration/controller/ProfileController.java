@@ -19,6 +19,7 @@ public class ProfileController {
 
     @GetMapping("/me")
     public UserProfileResponse me(@AuthenticationPrincipal Object principal){
+        System.out.println("pipline");
         String email = extractEmail(principal);
         User u = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
