@@ -37,10 +37,6 @@ public class OpenApiConfig {
                 .addSecurityItem(new SecurityRequirement().addList("apiKeyAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", securityScheme)
-                        .addSecuritySchemes("apiKeyAuth", apiKeyScheme))
-                .servers(List.of(
-                        new Server().url("https://userservice.drillbi.se").description("Production Server"),
-                        new Server().url("http://localhost:8080/").description("Production Server")
-                ));
+                        .addSecuritySchemes("apiKeyAuth", apiKeyScheme));
     }
 }
